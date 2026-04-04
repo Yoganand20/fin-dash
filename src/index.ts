@@ -1,10 +1,12 @@
 import express from "express";
 import type { Application, Request, Response } from "express";
-import authRouter from "./routes/authRouter.ts";
+import cors from "cors";
+
 import connectDB from "./utils/db.ts";
 import config from "./utils/config.ts";
 
-import cors from "cors";
+import authRouter from "./routes/authRouter.ts";
+import recordRouter from "./routes/recordRoutes.ts";
 
 const app: Application = express();
 
@@ -25,6 +27,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/record", recordRouter);
 
 app.use((req: Request, res: Response) => {
   res.status(404).send("404 - Not Found");
