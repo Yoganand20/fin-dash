@@ -1,0 +1,12 @@
+{
+  "name": "fin-dash",
+  "version": "1.0.0",
+  "description": "A simple backend for financial dashboard.",
+  "license": "ISC",
+  "author": "Yoganand",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
