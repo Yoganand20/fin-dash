@@ -6,7 +6,7 @@ import {
 } from "../middleware/auth.ts";
 import {
   getAnnualSummary,
-  getBiannuallySummary,
+  getBiannualSummary,
   getCategoryWiseSummary,
   getFullDashboard,
   getMiniSummary,
@@ -27,7 +27,7 @@ dashboardRouter.get("/summary/type", getTypeWiseSummary);
 dashboardRouter.get("/summary/category", getCategoryWiseSummary);
 dashboardRouter.get("/summary/monthly", getMonthlySummary);
 dashboardRouter.get("/summary/quarterly", getQuarterlySummary);
-dashboardRouter.get("/summary/biannually", getBiannuallySummary);
+dashboardRouter.get("/summary/biannual", getBiannualSummary);
 dashboardRouter.get("/summary/annual", getAnnualSummary);
 
 export default dashboardRouter;
