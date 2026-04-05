@@ -3,12 +3,12 @@ import jwt from "jsonwebtoken";
 import User, { UserRole, type IUser } from "../models/User.ts";
 
 export interface AuthRequest extends Request {
-  user_id?: string;
-  user?: IUser;
+  user_id: string;
+  user: IUser;
 }
 // JWT Authentication
 export const requireAuth = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
@@ -35,8 +35,8 @@ export const requireAuth = async (
         .json({ error: "Forbidden: Account has been deactivated" });
     }
 
-    req.user_id = decoded.id;
-    req.user = user;
+    (req as AuthRequest).user_id = decoded.id;
+    (req as AuthRequest).user = user;
     next();
   } catch (err) {
     res.status(401).json({ error: "Unauthorized: Invalid token" });
@@ -45,8 +45,9 @@ export const requireAuth = async (
 
 // Role-Based Access Control (RBAC) Guard
 export const requireRole = (allowedRoles: UserRole[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const authReq = req as AuthRequest;
+    if (!authReq.user || !allowedRoles.includes(authReq.user.role)) {
       return res
         .status(403)
         .json({ error: "Forbidden: Insufficient permissions" });
@@ -74,6 +75,8 @@ export const RolePermissions: Record<UserRole, AppAction[]> = {
   [UserRole.VIEWER]: [AppAction.VIEW_DASHBOARD],
   [UserRole.ANALYST]: [AppAction.VIEW_RECORD, AppAction.VIEW_INSIGHT],
   [UserRole.ADMIN]: [
+    AppAction.VIEW_DASHBOARD,
+    AppAction.VIEW_INSIGHT,
     AppAction.VIEW_RECORD,
     AppAction.CREATE_RECORD,
     AppAction.UPDATE_RECORD,
@@ -96,7 +99,7 @@ export const hasPermission = (
 
 // Permission-Based Access Control (PBAC) Guard
 export const requirePermission = (requiredAction: AppAction) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user as IUser;
     if (user.isActive !== true) {
       return res.status(403).json({ error: "User account is inactive." });

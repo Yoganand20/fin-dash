@@ -2,10 +2,11 @@ import type { Request, Response } from "express";
 import FinancialRecord from "../models/Record.ts";
 import type { AuthRequest } from "../middleware/auth.ts";
 
-export const createRecord = async (req: AuthRequest, res: Response) => {
+export const createRecord = async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest;
   const record = new FinancialRecord({
-    ...req.body,
-    createdBy: req.user_id,
+    ...authReq.body,
+    createdBy: authReq.user_id,
   });
   await record.save();
   res.status(201).json({ data: record });
@@ -13,7 +14,7 @@ export const createRecord = async (req: AuthRequest, res: Response) => {
 
 export const getRecordById = async (req: Request, res: Response) => {
   const record = await FinancialRecord.findById(req.params.id);
-
+  
   if (!record) {
     return res.status(404).json({ message: "Record not found" });
   }

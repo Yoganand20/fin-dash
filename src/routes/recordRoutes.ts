@@ -13,11 +13,10 @@ import {
 } from "../controllers/RecordController.ts";
 
 const recordRouter = Router();
-
+recordRouter.use(requireAuth);
 // Create
 recordRouter.post(
   "/",
-  requireAuth,
   requirePermission(AppAction.CREATE_RECORD),
   createRecord,
 );
@@ -25,23 +24,16 @@ recordRouter.post(
 //View one record
 recordRouter.get(
   "/:id",
-  requireAuth,
   requirePermission(AppAction.VIEW_RECORD),
   getRecordById,
 );
 
 // View & Filter
-recordRouter.get(
-  "/",
-  requireAuth,
-  requirePermission(AppAction.VIEW_RECORD),
-  getRecords,
-);
+recordRouter.get("/", requirePermission(AppAction.VIEW_RECORD), getRecords);
 
 // Update
 recordRouter.patch(
   "/:id",
-  requireAuth,
   requirePermission(AppAction.UPDATE_RECORD),
   updateRecord,
 );
@@ -49,7 +41,6 @@ recordRouter.patch(
 // Delete
 recordRouter.delete(
   "/:id",
-  requireAuth,
   requirePermission(AppAction.DELETE_RECORD),
   deleteRecord,
 );
