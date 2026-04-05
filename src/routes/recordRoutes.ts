@@ -10,7 +10,7 @@ import {
   getRecordById,
   getRecords,
   updateRecord,
-} from "../controllers/RecordController.ts";
+} from "../controllers/recordController.ts";
 
 const recordRouter = Router();
 recordRouter.use(requireAuth);
@@ -28,7 +28,7 @@ recordRouter.get(
   getRecordById,
 );
 
-// View & Filter
+// View all & Filter
 recordRouter.get("/", requirePermission(AppAction.VIEW_RECORD), getRecords);
 
 // Update

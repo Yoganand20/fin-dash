@@ -3,6 +3,7 @@ import FinancialRecord, { RecordType } from "../models/Record.ts";
 import type { AuthRequest } from "../middleware/auth.ts";
 import z from "zod";
 import mongoose from "mongoose";
+import RecordService from "../service/recordService.ts";
 
 const createRecordSchema = z.object({
   amount: z.number().positive("Amount must be greater than 0"),
@@ -47,11 +48,11 @@ export const createRecord = async (req: Request, res: Response) => {
         details: parsedData.error.flatten().fieldErrors,
       });
     }
-    const record = new FinancialRecord({
-      ...parsedData.data,
-      createdBy: authReq.user_id,
-    });
-    await record.save();
+
+    const record = await RecordService.createRecord(
+      authReq.user_id,
+      parsedData.data,
+    );
     res.status(201).json({ success: true, data: record });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -66,14 +67,9 @@ export const getRecordById = async (req: Request, res: Response) => {
     if (!isValidId(recordId))
       return res.status(400).json({ message: "Invalid ID format" });
 
-    const record = await FinancialRecord.findOne({
-      _id: recordId,
-      createdBy: userId,
-    });
+    const record = await RecordService.getRecordById(userId, recordId);
 
-    if (!record) {
-      return res.status(404).json({ message: "Record not found" });
-    }
+    if (!record) return res.status(404).json({ message: "Record not found" });
 
     res.status(200).json({ success: true, data: record });
   } catch (error: any) {
@@ -93,20 +89,7 @@ export const getRecords = async (req: Request, res: Response) => {
       });
     }
 
-    const { startDate, endDate, type, category } = parsedQuery.data;
-
-    const filter: any = { createdBy: userId };
-
-    // Build filter object based on query params
-    if (startDate || endDate) {
-      filter.date = {};
-      if (startDate) filter.date.$gte = startDate;
-      if (endDate) filter.date.$lte = endDate;
-    }
-    if (type) filter.type = type;
-    if (category) filter.category = category;
-
-    const records = await FinancialRecord.find(filter).sort({ date: -1 });
+    const records = await RecordService.getRecords(userId, parsedQuery.data);
     res.status(200).json({ success: true, data: records });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -129,11 +112,12 @@ export const updateRecord = async (req: Request, res: Response) => {
       });
     }
 
-    const record = await FinancialRecord.findOneAndUpdate(
-      { _id: recordId, createdBy: userId },
-      { $set: parsedData.data },
-      { new: true, runValidators: true },
+    const record = await RecordService.updateRecord(
+      userId,
+      recordId,
+      parsedData.data,
     );
+
     if (!record)
       return res
         .status(404)
@@ -153,10 +137,7 @@ export const deleteRecord = async (req: Request, res: Response) => {
     if (!isValidId(recordId))
       return res.status(400).json({ message: "Invalid ID format" });
 
-    const record = await FinancialRecord.findOneAndDelete({
-      _id: recordId,
-      createdBy: userId,
-    });
+    const record = await RecordService.deleteRecord(userId, recordId);
 
     if (!record)
       return res
