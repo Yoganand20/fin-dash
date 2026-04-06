@@ -4,48 +4,48 @@ A robust RESTful API built with MERN stack, designed to manage financial records
 
 ## Features
 
-    Role-Based Access Control (RBAC): Middleware-driven permission system (requirePermission) ensuring users only access authorized resources.
+**Role-Based Access Control (RBAC):** Middleware-driven permission system (requirePermission) ensuring users only access authorized resources.
 
-    Financial Record Management: Full CRUD operations for income and expense tracking with filtering capabilities.
+**Financial Record Management:** Full CRUD operations for income and expense tracking with filtering capabilities.
 
-    Advanced Analytics: Dedicated dashboard endpoints for monthly, quarterly, category-wise and transaction type financial summaries.
+**Advanced Analytics:** Dedicated dashboard endpoints for monthly, quarterly, category-wise and transaction type financial summaries.
 
-    User Lifecycle Management: Support for user registration, role updates, account deactivation, and status management.
+**User Lifecycle Management:** Support for user registration, role updates, account deactivation, and status management.
 
-    Security: JWT-based authentication and route guarding.
+**Security:** JWT-based authentication and route guarding.
 
 ## Tech Stack
 
-    Runtime: Node.js
+**Runtime:** Node.js
 
-    Framework: Express.js
+**Framework:** Express.js
 
-    Language: TypeScript
+**Language:** TypeScript
 
-    Security: JWT (JSON Web Tokens)
+**Security:** JWT (JSON Web Tokens)
 
-    Database: MongoDB
+**Database:** MongoDB
 
-    Zod: Validation Library
+**Validation:** Zod
 
 ## System Architecture
 
 The application follows a modular controller-router-middleware pattern to ensure separation of concerns:
 
-    Middleware: Handles Authentication (JWT verification) and Authorization (Permission checks).
+**Middleware:** Handles Authentication (JWT verification) and Authorization (Permission checks).
 
-    Controllers: Contains the business logic for data processing and aggregation.
+**Controllers:** Contains the business logic for data processing and aggregation.
 
-    Routers: Defines the API surface and maps endpoints to specific logic.
+**Routers:** Defines the API surface and maps endpoints to specific logic.
 
 ## Access Control Matrix
 
 The system utilizes an AppAction enum to define granular permissions:
 |Role (Example) |Permissions|
 | --------------- | ------------------------------------------------------- |
-|Admin |VIEW_USER, CREATE_USER, UPDATE_USER, DELETE_USER, VIEW_RECORD, CREATE_RECORD, etc.|
-|Analyst |VIEW_RECORD, CREATE_RECORD, UPDATE_RECORD, VIEW_DASHBOARD|
-|Viewer |VIEW_RECORD, VIEW_DASHBOARD|
+|Admin |VIEW_USER, CREATE_USER, UPDATE_USER, DELETE_USER, VIEW_RECORD, CREATE_RECORD, UPDATE_RECORD, DELETE_RECORD, VIEW_DASHBOARD|
+|Analyst |VIEW_RECORD, VIEW_DASHBOARD|
+|Viewer | VIEW_DASHBOARD|
 
 ## API Documentation
 
