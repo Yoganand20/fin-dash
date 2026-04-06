@@ -2,9 +2,7 @@
 
 A robust RESTful API built with MERN stack, designed to manage financial records with a granular Role-Based Access Control (RBAC) system. This backend serves as the backend for a finance dashboard, providing aggregated analytics and secure data management.
 
-Live server: 
-
-    https://fin-dash-i33v.onrender.com
+Live server: [https://fin-dash-i33v.onrender.com](https://fin-dash-i33v.onrender.com)
     
 Uses Credentials for testing: 
 Viewer:
