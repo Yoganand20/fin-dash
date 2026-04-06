@@ -97,3 +97,39 @@ Requires VIEW_DASHBOARD Permission
 |GET |/summary/quarterly |Quarterly financial report|
 |GET |/summary/biannual |Biannual financial report|
 |GET |/summary/annual |Yearly financial report|
+
+## Setup & Installation
+1. Prerequisites
+
+    NodeJS
+   
+    MongoDB
+
+   
+3. Clone the repository:
+```Bash
+git clone https://github.com/Yoganand20/fin-dash
+cd fin-dash
+```
+
+
+3. Install dependencies:
+
+```Bash
+npm install
+```
+
+
+4. Environment Variables:
+Create a .env file and add:
+```Code
+PORT=3000
+JWT_SECRET=your_secret_key
+DATABASE_URL=your_db_connection_string
+```
+
+
+5. Run the application:
+```Bash
+npm run dev
+```
