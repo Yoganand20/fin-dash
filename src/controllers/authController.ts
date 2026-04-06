@@ -6,14 +6,22 @@ import config from "../utils/config.ts";
 import z from "zod";
 import UserService from "../service/userService.ts";
 
-const authSchema = z.object({
+const loginSchema = z.object({
   email: z.email("Invalid email format"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
+
+const signupSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email format"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const parsedData = authSchema.safeParse(req.body);
+    const parsedData = signupSchema.safeParse(req.body);
 
     if (!parsedData.success) {
       return res.status(400).json({
@@ -42,7 +50,7 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const parsedData = authSchema.safeParse(req.body);
+    const parsedData = loginSchema.safeParse(req.body);
 
     if (!parsedData.success) {
       return res.status(400).json({
