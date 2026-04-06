@@ -68,6 +68,8 @@ Requires Authentication
 |PATCH |/users/me| None| Update own profile|
 |DELETE |/users/me| None| Self-deactivate account|
 |GET |/users/:id| VIEW_USER| Get specific user detail|
+|PATCH| /users/:id |UPDATE_USER |Change user details|
+|DELETE| /users/:id |UPDATE_USER |Delete user|
 |PATCH| /users/:id/role |UPDATE_USER |Change user permissions|
 |PATCH| /users/:id/status| UPDATE_USER| Activate/Suspend user|
 
@@ -91,5 +93,7 @@ Requires VIEW_DASHBOARD Permission
 |GET |/summary/mini| High-level KPIs (Total Balance, etc.)|
 |GET |/summary/type |Income vs Expense breakdown|
 |GET |/summary/category| Category-wise spending|
-|GET |/summary/monthly |Time-series data for monthly trends|
+|GET |/summary/monthly |Monthly financial report|
+|GET |/summary/quarterly |Quarterly financial report|
+|GET |/summary/biannual |Biannual financial report|
 |GET |/summary/annual |Yearly financial report|
