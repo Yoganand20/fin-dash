@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import UserService from "../service/userService.ts";
 import z from "zod";
 import mongoose from "mongoose";
+import { AuthRequest } from "../middleware/auth.ts";
 
 const createUserSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -15,7 +16,7 @@ const createUserSchema = z.object({
 const updateUserSchema = z.object({
   firstName: z.string().min(1, "First name is required").optional(),
   lastName: z.string().min(1, "Last name is required").optional(),
-  email: z.email("Invalid email format"),
+  email: z.email("Invalid email format").optional(),
 });
 
 const updateRoleSchema = z.object({
@@ -106,6 +107,89 @@ export const updateUser = async (req: Request, res: Response) => {
       .json({ data: updatedUser, message: "User updated successfully" });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+export const updateSelf = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as AuthRequest).user_id;
+
+    const parsedBody = updateUserSchema.safeParse(req.body);
+
+    if (!parsedBody.success) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: parsedBody.error.flatten().fieldErrors,
+      });
+    }
+
+    const updatedUser = await UserService.updateUser(userId, parsedBody.data);
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User profile not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+      message: "Profile updated successfully",
+    });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
+export const getSelf = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as AuthRequest).user_id;
+
+    const user = await UserService.getUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User profile not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+export const deactivateSelf = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as AuthRequest).user_id;
+
+    const deactivatedUser = await UserService.updateUserStatus(userId, false);
+
+    if (!deactivatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Account deactivated successfully. You have been logged out.",
+      data: {
+        email: deactivatedUser.email,
+        isActive: deactivatedUser.isActive,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 

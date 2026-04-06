@@ -6,9 +6,12 @@ import {
 } from "../middleware/auth.ts";
 import {
   createUser,
+  deactivateSelf,
   deleteUser,
+  getSelf,
   getUserById,
   getUsers,
+  updateSelf,
   updateUser,
   updateUserRole,
   updateUserStatus,
@@ -20,6 +23,10 @@ userRouter.use(requireAuth);
 
 userRouter.get("/", requirePermission(AppAction.VIEW_USER), getUsers);
 userRouter.post("/", requirePermission(AppAction.CREATE_USER), createUser);
+
+userRouter.get("/me", getSelf);
+userRouter.patch("/me", updateSelf); //all users can update detail of them self
+userRouter.delete("/me", deactivateSelf); //all users can deactivate their account
 
 userRouter.get("/:id", requirePermission(AppAction.VIEW_USER), getUserById);
 
