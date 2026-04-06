@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import User from "../models/User.ts";
 import config from "../utils/config.ts";
 import z from "zod";
+import UserService from "../service/userService.ts";
 
 const authSchema = z.object({
   email: z.email("Invalid email format"),
@@ -20,15 +21,10 @@ export const signup = async (req: Request, res: Response) => {
         details: z.treeifyError(parsedData.error),
       });
     }
-    const { email, password } = parsedData.data;
 
-    const rounds = 10;
-    const passwordHash = await bcrypt.hash(password, rounds);
+    const usr = await UserService.createUser(parsedData.data);
 
-    const user = new User({ email, passwordHash: passwordHash });
-    await user.save();
-
-    res.status(201).json({ message: "User created" });
+    res.status(201).json({ data: usr, message: "User created successfully" });
   } catch (error: any) {
     if (error.code === 11000) {
       return res.status(400).json({ error: "Email already in use" });

@@ -8,6 +8,7 @@ import config from "./utils/config.ts";
 import authRouter from "./routes/authRouter.ts";
 import recordRouter from "./routes/recordRoutes.ts";
 import dashboardRouter from "./routes/dashboardRouter.ts";
+import userRouter from "./routes/userRouter.ts";
 
 const app: Application = express();
 
@@ -30,6 +31,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/auth", authRouter);
 app.use("/record", recordRouter);
 app.use("/dashboard", dashboardRouter);
+app.use("/user", userRouter);
 
 app.use((req: Request, res: Response) => {
   res.status(404).send("404 - Not Found");
