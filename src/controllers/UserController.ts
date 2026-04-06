@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import UserService from "../service/userService.ts";
 import z from "zod";
-import mongoose from "mongoose";
+import mongoose, { trusted } from "mongoose";
 import { AuthRequest } from "../middleware/auth.ts";
 
 const createUserSchema = z.object({
@@ -35,9 +35,9 @@ const isValidId = (id: string) => mongoose.Types.ObjectId.isValid(id);
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await UserService.getUsers();
-    res.status(200).json({ data: users });
+    res.status(200).json({ success: trusted, data: users });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -49,18 +49,21 @@ export const createUser = async (req: Request, res: Response) => {
 
     if (!parsedBody.success) {
       return res.status(400).json({
+        success: false,
         error: "Validation failed",
         details: z.treeifyError(parsedBody.error),
       });
     }
 
     const usr = await UserService.createUser(parsedBody.data);
-    res.status(201).json({ data: usr, message: "User created successfully" });
+    res.status(201).json({ success: true, data: usr });
   } catch (error: any) {
     if (error.code === 11000) {
-      return res.status(400).json({ error: "Email already in use" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email already in use" });
     }
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ success: false, error });
   }
 };
 
@@ -70,15 +73,20 @@ export const getUserById = async (req: Request, res: Response) => {
     const userId = req.params.id as string;
 
     if (!isValidId(userId))
-      return res.status(400).json({ message: "Invalid ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid ID format" });
 
     const user = await UserService.getUserById(userId);
 
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
 
-    res.status(200).json({ data: user });
+    res.status(200).json({ success: true, data: user });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -88,25 +96,29 @@ export const updateUser = async (req: Request, res: Response) => {
     const userId = req.params.id as string;
 
     if (!isValidId(userId))
-      return res.status(400).json({ message: "Invalid ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid ID format" });
 
-    const parsedBody = updateUserSchema.safeParse(req.body);
-    if (!parsedBody.success) {
+    const parsedData = updateUserSchema.safeParse(req.body);
+    if (!parsedData.success) {
       return res.status(400).json({
-        error: "Validation failed",
-        details: parsedBody.error.flatten().fieldErrors,
+        success: false,
+        message: "Validation failed",
+        error: z.treeifyError(parsedData.error),
       });
     }
 
-    const updatedUser = await UserService.updateUser(userId, parsedBody.data);
+    const updatedUser = await UserService.updateUser(userId, parsedData.data);
 
-    if (!updatedUser) return res.status(404).json({ error: "User not found" });
+    if (!updatedUser)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
 
-    res
-      .status(200)
-      .json({ data: updatedUser, message: "User updated successfully" });
+    res.status(200).json({ success: true, data: updatedUser });
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ success: false, error });
   }
 };
 
@@ -114,19 +126,22 @@ export const updateSelf = async (req: Request, res: Response) => {
   try {
     const userId = (req as AuthRequest).user_id;
 
-    const parsedBody = updateUserSchema.safeParse(req.body);
+    const parsedData = updateUserSchema.safeParse(req.body);
 
-    if (!parsedBody.success) {
+    if (!parsedData.success) {
       return res.status(400).json({
-        error: "Validation failed",
-        details: parsedBody.error.flatten().fieldErrors,
+        success: false,
+        message: "Validation failed",
+        error: z.treeifyError(parsedData.error),
       });
     }
 
-    const updatedUser = await UserService.updateUser(userId, parsedBody.data);
+    const updatedUser = await UserService.updateUser(userId, parsedData.data);
 
     if (!updatedUser) {
-      return res.status(404).json({ error: "User profile not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User profile not found" });
     }
 
     res.status(200).json({
@@ -135,7 +150,7 @@ export const updateSelf = async (req: Request, res: Response) => {
       message: "Profile updated successfully",
     });
   } catch (error: any) {
-    res.status(400).json({ success: false, error: error.message });
+    res.status(400).json({ success: false, error });
   }
 };
 
@@ -157,10 +172,7 @@ export const getSelf = async (req: Request, res: Response) => {
       data: user,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -186,10 +198,7 @@ export const deactivateSelf = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -205,9 +214,11 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     if (!deletedUser) return res.status(404).json({ error: "User not found" });
 
-    res.status(200).json({ message: "User deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "User deleted successfully" });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -219,26 +230,25 @@ export const updateUserRole = async (req: Request, res: Response) => {
     if (!isValidId(userId))
       return res.status(400).json({ message: "Invalid ID format" });
 
-    const parsedBody = updateRoleSchema.safeParse(req.body);
-    if (!parsedBody.success) {
+    const parsedData = updateRoleSchema.safeParse(req.body);
+    if (!parsedData.success) {
       return res.status(400).json({
-        error: "Validation failed",
-        details: parsedBody.error.flatten().fieldErrors,
+        success: false,
+        message: "Validation failed",
+        error: z.treeifyError(parsedData.error),
       });
     }
 
     const updatedUser = await UserService.updateUserRole(
       userId,
-      parsedBody.data.role,
+      parsedData.data.role,
     );
 
     if (!updatedUser) return res.status(404).json({ error: "User not found" });
 
-    res
-      .status(200)
-      .json({ data: updatedUser, message: "User role updated successfully" });
+    res.status(200).json({ success: true, data: updatedUser });
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ success: false, error });
   }
 };
 
@@ -250,24 +260,26 @@ export const updateUserStatus = async (req: Request, res: Response) => {
     if (!isValidId(userId))
       return res.status(400).json({ message: "Invalid ID format" });
 
-    const parsedBody = updateStatusSchema.safeParse(req.body);
-    if (!parsedBody.success) {
+    const parsedData = updateStatusSchema.safeParse(req.body);
+    if (!parsedData.success) {
       return res.status(400).json({
-        error: "Validation failed",
-        details: parsedBody.error.flatten().fieldErrors,
+        success: false,
+        message: "Validation failed",
+        error: z.treeifyError(parsedData.error),
       });
     }
 
     const updatedUser = await UserService.updateUserStatus(
       userId,
-      parsedBody.data.isActive,
+      parsedData.data.isActive,
     );
 
     if (!updatedUser) return res.status(404).json({ error: "User not found" });
-    res
-      .status(200)
-      .json({ data: updatedUser, message: "User status updated successfully" });
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ success: false, error });
   }
 };

@@ -45,7 +45,7 @@ export const createRecord = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: "Validation failed",
-        details: parsedData.error.flatten().fieldErrors,
+        details: z.treeifyError(parsedData.error),
       });
     }
 
@@ -55,7 +55,7 @@ export const createRecord = async (req: Request, res: Response) => {
     );
     res.status(201).json({ success: true, data: record });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -65,15 +65,20 @@ export const getRecordById = async (req: Request, res: Response) => {
     const recordId = req.params.id as string;
 
     if (!isValidId(recordId))
-      return res.status(400).json({ message: "Invalid ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid ID format" });
 
     const record = await RecordService.getRecordById(userId, recordId);
 
-    if (!record) return res.status(404).json({ message: "Record not found" });
+    if (!record)
+      return res
+        .status(404)
+        .json({ success: false, message: "Record not found" });
 
     res.status(200).json({ success: true, data: record });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -84,15 +89,16 @@ export const getRecords = async (req: Request, res: Response) => {
     const parsedQuery = querySchema.safeParse(req.query);
     if (!parsedQuery.success) {
       return res.status(400).json({
+        success: false,
         error: "Invalid query parameters",
-        details: parsedQuery.error.flatten().fieldErrors,
+        details: z.treeifyError(parsedQuery.error),
       });
     }
 
     const records = await RecordService.getRecords(userId, parsedQuery.data);
     res.status(200).json({ success: true, data: records });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -102,13 +108,16 @@ export const updateRecord = async (req: Request, res: Response) => {
     const recordId = req.params.id as string;
 
     if (!isValidId(recordId))
-      return res.status(400).json({ message: "Invalid ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid ID format" });
 
     const parsedData = updateRecordSchema.safeParse(req.body);
     if (!parsedData.success) {
       return res.status(400).json({
+        success: false,
         error: "Validation failed",
-        details: parsedData.error.flatten().fieldErrors,
+        details: z.treeifyError(parsedData.error),
       });
     }
 
@@ -121,11 +130,11 @@ export const updateRecord = async (req: Request, res: Response) => {
     if (!record)
       return res
         .status(404)
-        .json({ message: "Record not found or unauthorized" });
+        .json({ success: false, message: "Record not found or unauthorized" });
 
     res.status(200).json({ success: true, data: record });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, error });
   }
 };
 
@@ -135,19 +144,21 @@ export const deleteRecord = async (req: Request, res: Response) => {
     const recordId = req.params.id as string;
 
     if (!isValidId(recordId))
-      return res.status(400).json({ message: "Invalid ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid ID format" });
 
     const record = await RecordService.deleteRecord(userId, recordId);
 
     if (!record)
       return res
         .status(404)
-        .json({ message: "Record not found or unauthorized" });
+        .json({ success: false, message: "Record not found or unauthorized" });
 
     res
       .status(200)
       .json({ success: true, message: "Record deleted successfully" });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, error });
   }
 };
