@@ -15,8 +15,8 @@ export const getRecordById = async (userId: string, recordId: string) => {
   });
 };
 
-export const getRecords = async (userId: string, filters: any) => {
-  const filter: any = { createdBy: userId };
+export const getRecords = async (filters: any) => {
+  const filter: any = { };
 
   if (filters.startDate || filters.endDate) {
     filter.date = {};
@@ -41,10 +41,9 @@ export const updateRecord = async (
   );
 };
 
-export const deleteRecord = async (userId: string, recordId: string) => {
+export const deleteRecord = async (recordId: string) => {
   return await FinancialRecord.findOneAndDelete({
     _id: recordId,
-    createdBy: userId,
   });
 };
 

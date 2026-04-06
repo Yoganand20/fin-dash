@@ -84,8 +84,6 @@ export const getRecordById = async (req: Request, res: Response) => {
 
 export const getRecords = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
-
     const parsedQuery = querySchema.safeParse(req.query);
     if (!parsedQuery.success) {
       return res.status(400).json({
@@ -95,7 +93,7 @@ export const getRecords = async (req: Request, res: Response) => {
       });
     }
 
-    const records = await RecordService.getRecords(userId, parsedQuery.data);
+    const records = await RecordService.getRecords(parsedQuery.data);
     res.status(200).json({ success: true, data: records });
   } catch (error: any) {
     res.status(500).json({ success: false, error });
@@ -140,7 +138,6 @@ export const updateRecord = async (req: Request, res: Response) => {
 
 export const deleteRecord = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
     const recordId = req.params.id as string;
 
     if (!isValidId(recordId))
@@ -148,7 +145,7 @@ export const deleteRecord = async (req: Request, res: Response) => {
         .status(400)
         .json({ success: false, message: "Invalid ID format" });
 
-    const record = await RecordService.deleteRecord(userId, recordId);
+    const record = await RecordService.deleteRecord(recordId);
 
     if (!record)
       return res

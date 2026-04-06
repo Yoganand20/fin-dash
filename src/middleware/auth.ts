@@ -58,7 +58,6 @@ export const requireRole = (allowedRoles: UserRole[]) => {
 
 export enum AppAction {
   VIEW_DASHBOARD = "VIEW_DASHBOARD",
-  VIEW_INSIGHT = "VIEW_INSIGHT",
 
   VIEW_RECORD = "VIEW_RECORD",
   CREATE_RECORD = "CREATE_RECORD",
@@ -73,10 +72,10 @@ export enum AppAction {
 
 export const RolePermissions: Record<UserRole, AppAction[]> = {
   [UserRole.VIEWER]: [AppAction.VIEW_DASHBOARD],
-  [UserRole.ANALYST]: [AppAction.VIEW_RECORD, AppAction.VIEW_INSIGHT],
+  [UserRole.ANALYST]: [AppAction.VIEW_RECORD, AppAction.VIEW_DASHBOARD],
   [UserRole.ADMIN]: [
     AppAction.VIEW_DASHBOARD,
-    AppAction.VIEW_INSIGHT,
+
     AppAction.VIEW_RECORD,
     AppAction.CREATE_RECORD,
     AppAction.UPDATE_RECORD,

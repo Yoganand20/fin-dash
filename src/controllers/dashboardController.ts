@@ -15,8 +15,7 @@ export const getRecentActivity = async (req: Request, res: Response) => {
 
 export const getMiniSummary = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
-    const data = await DashboardService.getMiniSummary(userId);
+    const data = await DashboardService.getMiniSummary();
     res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error });
@@ -25,8 +24,7 @@ export const getMiniSummary = async (req: Request, res: Response) => {
 
 export const getTypeWiseSummary = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
-    const data = await DashboardService.getTypeWiseSummary(userId);
+    const data = await DashboardService.getTypeWiseSummary();
     res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error });
@@ -35,8 +33,7 @@ export const getTypeWiseSummary = async (req: Request, res: Response) => {
 
 export const getCategoryWiseSummary = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
-    const data = await DashboardService.getCategoryWiseSummary(userId);
+    const data = await DashboardService.getCategoryWiseSummary();
     res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error });
@@ -45,8 +42,7 @@ export const getCategoryWiseSummary = async (req: Request, res: Response) => {
 
 export const getMonthlySummary = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
-    const data = await DashboardService.getMonthlySummary(userId);
+    const data = await DashboardService.getMonthlySummary();
     res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error });
@@ -55,8 +51,7 @@ export const getMonthlySummary = async (req: Request, res: Response) => {
 
 export const getQuarterlySummary = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
-    const data = await DashboardService.getQuarterlySummary(userId);
+    const data = await DashboardService.getQuarterlySummary();
     res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error });
@@ -65,8 +60,7 @@ export const getQuarterlySummary = async (req: Request, res: Response) => {
 
 export const getBiannualSummary = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
-    const data = await DashboardService.getBiannualSummary(userId);
+    const data = await DashboardService.getBiannualSummary();
     res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error });
@@ -75,8 +69,7 @@ export const getBiannualSummary = async (req: Request, res: Response) => {
 
 export const getAnnualSummary = async (req: Request, res: Response) => {
   try {
-    const userId = (req as AuthRequest).user_id;
-    const data = await DashboardService.getAnnualSummary(userId);
+    const data = await DashboardService.getAnnualSummary();
     res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error });
@@ -88,13 +81,13 @@ export const getFullDashboard = async (req: Request, res: Response) => {
     const userId = (req as AuthRequest).user_id;
     const [mini, typewise, categorywise, monthly, quarterly, biannual, annual] =
       await Promise.all([
-        DashboardService.getMiniSummary(userId),
-        DashboardService.getTypeWiseSummary(userId),
-        DashboardService.getCategoryWiseSummary(userId),
-        DashboardService.getMonthlySummary(userId),
-        DashboardService.getQuarterlySummary(userId),
-        DashboardService.getBiannualSummary(userId),
-        DashboardService.getAnnualSummary(userId),
+        DashboardService.getMiniSummary(),
+        DashboardService.getTypeWiseSummary(),
+        DashboardService.getCategoryWiseSummary(),
+        DashboardService.getMonthlySummary(),
+        DashboardService.getQuarterlySummary(),
+        DashboardService.getBiannualSummary(),
+        DashboardService.getAnnualSummary(),
       ]);
 
     res.status(200).json({

@@ -18,20 +18,16 @@ const projectNetBal = {
 };
 
 const getRecentActivity = (userId: string, count: number = 5) => {
-  return FinancialRecord.find({ createdBy: userId })
-    .sort({ date: -1 })
-    .limit(count);
+  return FinancialRecord.find().sort({ date: -1 }).limit(count);
 };
 
 // Core Aggregation Builder
 const generateSummary = async (
-  userId: string,
   groupId: string | Record<string, any>,
   idAlias: string,
   sortStage?: Record<string, 1 | -1>,
 ) => {
   const pipeline: any[] = [
-    { $match: { createdBy: new mongoose.Types.ObjectId(userId) } },
     { $group: { _id: groupId, ...calculateTotals } },
     { $project: { [idAlias]: "$_id", _id: 0, ...projectNetBal } },
   ];
@@ -41,32 +37,28 @@ const generateSummary = async (
   return FinancialRecord.aggregate(pipeline);
 };
 
-const getMiniSummary = async (userId: string) => {
+const getMiniSummary = async () => {
   const result = await FinancialRecord.aggregate([
-    { $match: { createdBy: new mongoose.Types.ObjectId(userId) } },
     { $group: { _id: null, ...calculateTotals } },
     { $project: { _id: 0, ...projectNetBal } },
   ]);
   return result[0] || { income: 0, expense: 0, netbal: 0 };
 };
 
-const getTypeWiseSummary = (userId: string) =>
-  generateSummary(userId, "$type", "type");
+const getTypeWiseSummary = () => generateSummary("$type", "type");
 
-const getCategoryWiseSummary = (userId: string) =>
-  generateSummary(userId, "$category", "category", { netbal: -1 });
+const getCategoryWiseSummary = () =>
+  generateSummary("$category", "category", { netbal: -1 });
 
-const getMonthlySummary = (userId: string) =>
+const getMonthlySummary = () =>
   generateSummary(
-    userId,
     { year: { $year: "$date" }, month: { $month: "$date" } },
     "period",
     { "period.year": -1, "period.month": -1 },
   );
 
-const getQuarterlySummary = (userId: string) =>
+const getQuarterlySummary = () =>
   generateSummary(
-    userId,
     {
       year: { $year: "$date" },
       quarter: { $ceil: { $divide: [{ $month: "$date" }, 3] } },
@@ -75,9 +67,8 @@ const getQuarterlySummary = (userId: string) =>
     { "period.year": -1, "period.quarter": -1 },
   );
 
-const getBiannualSummary = (userId: string) =>
+const getBiannualSummary = () =>
   generateSummary(
-    userId,
     {
       year: { $year: "$date" },
       half: { $ceil: { $divide: [{ $month: "$date" }, 6] } },
@@ -86,8 +77,8 @@ const getBiannualSummary = (userId: string) =>
     { "period.year": -1, "period.half": -1 },
   );
 
-const getAnnualSummary = (userId: string) =>
-  generateSummary(userId, { year: { $year: "$date" } }, "period", {
+const getAnnualSummary = () =>
+  generateSummary({ year: { $year: "$date" } }, "period", {
     "period.year": -1,
   });
 
