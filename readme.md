@@ -22,6 +22,10 @@ Admin:
     email: admin@findash.com
     password: 12345678
 
+Postman workspace for testing:
+
+    https://www.postman.com/speeding-star-305087/workspace/fin-dash
+
 ## Features
 
 **Role-Based Access Control (RBAC):** Middleware-driven permission system (requirePermission) ensuring users only access authorized resources.
