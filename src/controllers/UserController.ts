@@ -4,6 +4,8 @@ import z from "zod";
 import mongoose from "mongoose";
 
 const createUserSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   email: z.email("Invalid email format"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
   role: z.string().optional(),
@@ -11,6 +13,8 @@ const createUserSchema = z.object({
 });
 
 const updateUserSchema = z.object({
+  firstName: z.string().min(1, "First name is required").optional(),
+  lastName: z.string().min(1, "Last name is required").optional(),
   email: z.email("Invalid email format"),
 });
 
@@ -39,15 +43,16 @@ export const getUsers = async (req: Request, res: Response) => {
 // Create a new user
 export const createUser = async (req: Request, res: Response) => {
   try {
+    console.log(req.body);
     const parsedBody = createUserSchema.safeParse(req.body);
 
     if (!parsedBody.success) {
       return res.status(400).json({
         error: "Validation failed",
-        details: parsedBody.error.flatten().fieldErrors,
+        details: z.treeifyError(parsedBody.error),
       });
     }
-    
+
     const usr = await UserService.createUser(parsedBody.data);
     res.status(201).json({ data: usr, message: "User created successfully" });
   } catch (error: any) {
@@ -92,10 +97,7 @@ export const updateUser = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedUser = await UserService.updateUser(
-      userId,
-      parsedBody.data.email,
-    );
+    const updatedUser = await UserService.updateUser(userId, parsedBody.data);
 
     if (!updatedUser) return res.status(404).json({ error: "User not found" });
 

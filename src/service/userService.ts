@@ -9,6 +9,8 @@ export const createUser = async (userData: any) => {
   const rounds = 10;
   const Hashedpassword = await bcrypt.hash(userData.password, rounds);
   const user = new User({
+    firstName:userData.firstName,
+    lastName:userData.lastName,
     email: userData.email,
     passwordHash: Hashedpassword,
     role: userData.role,
@@ -26,10 +28,10 @@ export const getUserById = async (id: string) => {
   return await User.findById(id).select("-passwordHash");
 };
 
-export const updateUser = async (id: string, email: string) => {
+export const updateUser = async (id: string, updateData: Record<string, any>) => {
   return await User.findByIdAndUpdate(
     id,
-    { email },
+    { $set: updateData },
     { new: true, runValidators: true },
   ).select("-passwordHash");
 };
