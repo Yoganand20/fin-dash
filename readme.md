@@ -68,8 +68,6 @@ Requires Authentication
 |PATCH |/users/me| None| Update own profile|
 |DELETE |/users/me| None| Self-deactivate account|
 |GET |/users/:id| VIEW_USER| Get specific user detail|
-|PATCH| /users/:id |UPDATE_USER |Change user details|
-|DELETE| /users/:id |UPDATE_USER |Delete user|
 |PATCH| /users/:id/role |UPDATE_USER |Change user permissions|
 |PATCH| /users/:id/status| UPDATE_USER| Activate/Suspend user|
 
@@ -93,43 +91,37 @@ Requires VIEW_DASHBOARD Permission
 |GET |/summary/mini| High-level KPIs (Total Balance, etc.)|
 |GET |/summary/type |Income vs Expense breakdown|
 |GET |/summary/category| Category-wise spending|
-|GET |/summary/monthly |Monthly financial report|
-|GET |/summary/quarterly |Quarterly financial report|
-|GET |/summary/biannual |Biannual financial report|
+|GET |/summary/monthly |Time-series data for monthly trends|
 |GET |/summary/annual |Yearly financial report|
 
-## Setup & Installation
-1. Prerequisites
+### Development Strategy
 
-    NodeJS
-   
-    MongoDB
+## Core Assumptions
 
-   
-3. Clone the repository:
-```Bash
-git clone https://github.com/Yoganand20/fin-dash
-cd fin-dash
-```
+The system is architected for Organizational Use rather than personal finance:
 
+1. **Data Ownership:** All financial records belong to the Organization/Group, not the individual employee who created them.
 
-3. Install dependencies:
+2. **User Personas:** Viewers, Analysts, and Admins are treated as organization members with varying access levels to a shared data pool.
 
-```Bash
-npm install
-```
+3. **Role-Based Visibility:** Permissions are assigned by role. Any authorized user (Admin/Analyst) can view all organizational data to ensure cross-departmental transparency.
 
+## Key Trade-offs
 
-4. Environment Variables:
-Create a .env file and add:
-```Code
-PORT=3000
-JWT_SECRET=your_secret_key
-DATABASE_URL=your_db_connection_string
-```
+1. **Security vs. Velocity**
 
+   **Decision:** Implemented a standard JWT-based authentication system instead of complex MFA or OAuth2.
 
-5. Run the application:
-```Bash
-npm run dev
-```
+   **Reasoning:** This prioritized the development of RBAC (Role-Based Access Control) and high-performance Aggregation Pipelines, which are the core requirements of the finance dashboard.
+
+2. **Tech Stack Selection**
+
+   **Decision:** Selected MERN Stack (MongoDB, Express, React, Node).
+
+   **Reasoning:** MongoDB’s document model allowed for rapid schema iteration. Its aggregation framework is specifically leveraged to calculate complex  summaries efficiently without the overhead of SQL joins.
+
+3. **Simplified Data Lifecycle**
+
+   **Decision:** Utilized Hard Deletes for records and Status-based Deactivation for users.
+
+   **Reasoning:** This approach keeps the database logic clean and performant for an MVP, while providing a clear foundation for future "Soft Delete" audit trails.
